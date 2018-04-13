@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ARPG地图编辑器</title>
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap-slider.min.css">
+    <link rel="stylesheet" href="src/main.css">
+    <script src="lib/jquery/jquery-3.2.1.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap.min.js"></script>
+    <script src="lib/bootstrap/js/bootstrap-slider.min.js"></script>
+    <script src="lib/ui/ui.js"></script>
+
+</head>
+<body>
+    <div id="main" class="container-fluid">
+        <div id="menu" class="row clearfix">
+            <div class="col-md-6 column">
+                <div class="btn-group">
+                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">文件<span class="caret"></span></button>
+                    <ul id="fileMenu" class="dropdown-menu">
+                        <li>
+                            <a href="#open" id="open">打开文件</a>
+                        </li>
+                        <li class="divider">
+                        </li>
+                        <li>
+                            <a href="#terrain" id="exportTerrain">导出地形</a>
+                        </li>
+                        <li>
+                            <a href="#mapZone" id="exportMapZone">导出地图</a>
+                        </li>
+                        <li>
+                            <a href="#thumbnail" id="exportThumbnail">导出缩略图</a>
+                        </li>
+                    </ul>
+
+
+                </div>
+                <div class="btn-group">
+                    <button data-toggle="dropdown" class="btn btn-default dropdown-toggle">配置<span class="caret"></span></button>
+                    <ul id="fileMenu1" class="dropdown-menu">
+                        <li>
+                            <a id="areaModal" href="#areaPanel" role="button" class="btn" data-toggle="modal">配置区域</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6 column">
+            </div>
+        </div>
+        <div id="content" class="row clearfix">
+            <div class="col-md-12 column">
+
+                <div id="terrainSelect">
+                    <div style="font-weight: bold">区域<input type="radio" name="editorType" value="0"></div>
+                    <div><input type="input" id="areaId" name="areaLayer" placeholder="区域id"/></div>
+                    <!--<div><input type="input" id="linkId" name="areaLayer" placeholder="邻居区域id"/></div>-->
+                    <div style="margin-top: 25px">
+                        <input id="areaAlphaSet" data-slider-id='areaAlphaSetSlider' type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.001" data-slider-value="0.5" data-slider-orientation=""/>
+                    </div>
+                    <hr>
+
+                    <div style="font-weight: bold">地形<input type="radio" name="editorType" value="1" checked></div>
+                    <div>障碍1 <input type="checkbox" name="terrainLayer" value="1" checked/></div>
+                    <div>遮罩2 <input type="checkbox" name="terrainLayer" value="2"/></div>
+                    <div>水路4 <input type="checkbox" name="terrainLayer" value="4"/></div>
+                    <div>跳点8 <input type="checkbox" name="terrainLayer" value="8"/></div>
+                    <div>安全区16<input type="checkbox" name="terrainLayer" value="16"/></div>
+
+                    <div>
+                        <input id="terrainAlphaSet" data-slider-id='terrainAlphaSetSlider' type="text" data-slider-min="0" data-slider-max="1" data-slider-step="0.001" data-slider-value="0.5" data-slider-orientation=""/>
+                    </div>
+
+                    <hr>
+                    <div style="font-weight: bold">清除区域<input type="radio" name="editorType" value="2"></div>
+                    <div style="font-weight: bold">清除地形<input type="radio" name="editorType" value="3"></div>
+                    <div style="font-weight: bold">定点<input type="radio" name="editorType" value="4"></div>
+                    <div>行走点<input type="radio" name="delaunayLayer" value="0" checked/></div>
+                    <div>限制点<input type="radio" name="delaunayLayer" value="1"/></div>
+                    <div style="font-weight: bold">清除定点<input type="radio" name="editorType" value="5"></div>
+
+                    <hr>
+                    <div style="text-align: left;padding-left: 20px;color: red">
+                        <div>x:<span id="sceneX">0</span></div>
+                        <div>y:<span id="sceneY">0</span></div>
+                    </div>
+
+
+                </div>
+
+                <div id="map">
+                    <img id="mapImg" src="assets/2.jpg" ondragstart="return false" onload="mapLoaded()">
+                    <canvas id="areaLayer"></canvas>
+                    <canvas id="terrainLayer"></canvas>
+                    <canvas id="delaunayLayer"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="row clearfix">
+            <div class="col-md-12 column">
+
+
+                <div class="modal fade" id="areaPanel" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                <h4 class="modal-title" id="myModalLabel">
+                                    区域配置
+                                </h4>
+                            </div>
+                            <div class="modal-body" id="areaLink">
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="saveArea">保存</button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <div id="flashContent" style="display: none; width: 0; height: 0;"></div>
+
+</body>
+<script src="src/delaunay/Vector2f.js"></script>
+<script src="src/delaunay/Corner.js"></script>
+<script src="src/delaunay/Edge.js"></script>
+<script src="src/delaunay/Triangle.js"></script>
+<script src="src/delaunay/Delaunay.js"></script>
+
+<script src="src/swfobject.js"></script>
+<script src="src/EditorConsts.js"></script>
+<script src="src/Area.js"></script>
+<script src="src/Rectangle.js"></script>
+<script src="src/RangeSelector.js"></script>
+<script src="src/Grid.js"></script>
+<script src="src/Importer.js"></script>
+<script src="src/Exporter.js"></script>
+<script src="src/CanvasLayer.js"></script>
+<script src="src/MenuFile.js"></script>
+<script src="src/MenuConfig.js"></script>
+<script src="src/main.js"></script>
+
+</html>
